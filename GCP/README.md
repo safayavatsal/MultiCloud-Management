@@ -1,8 +1,6 @@
-1.Create Resources
+Create Resources
   a. VM machines
-  b. sql database
+  b. SQL database
   c. vpc,firewalls
   d. web-server
   e. load balancer, auto scaler
-
-2.  
