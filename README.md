@@ -7,27 +7,77 @@ The **MultiCloud-Management** project is designed to deploy and manage infrastru
 The repository is structured into separate directories for **AWS** and **GCP**, containing Terraform scripts to provision the required infrastructure.
 
 ```
-├── AWS/                  # AWS-specific Terraform configurations
-│   ├── main.tf           # Defines AWS infrastructure
-│   ├── variables.tf      # Variables for AWS resources
-│   ├── outputs.tf        # Outputs for AWS deployment
-│   ├── terraform.tfvars  # Terraform variables file
-│   ├── provider.tf       # AWS provider configuration
+├── AWS/                        # AWS-specific Terraform configurations
+│   ├── main.tf                 # Defines AWS infrastructure
+│   ├── main-variables.tf       # Variables for AWS resources
 │   ├── README.md         # AWS-specific instructions
-│   ├── modules/          # Reusable Terraform modules for AWS
-│   ├── scripts/          # Custom scripts for AWS automation
-│   └── .gitignore        # Files to be ignored in version control
-│
+│   └── modules/        
+│       ├── database/
+│       │   ├── database.tf
+│       │   └── db-vars.tf
+│       ├── lb/
+│       │   ├── lb.tf
+│       │   └── lb-vars.tf  
+│       ├── microservice-instance/
+│       │   ├── microservices-instance.tf
+│       │   ├── ms-vars.tf
+│       │   └── ms-output.tf  
+│       └── vpc/
+│           ├── vpc.tf
+│           ├── vpc-vars.tf
+│           └── vpc-output.tf  
+│  
 ├── GCP/                  # GCP-specific Terraform configurations
 │   ├── main.tf           # Defines GCP infrastructure
 │   ├── variables.tf      # Variables for GCP resources
-│   ├── outputs.tf        # Outputs for GCP deployment
-│   ├── terraform.tfvars  # Terraform variables file
-│   ├── provider.tf       # GCP provider configuration
-│   ├── README.md         # GCP-specific instructions
-│   ├── modules/          # Reusable Terraform modules for GCP
-│   ├── scripts/          # Custom scripts for GCP automation
-│   └── .gitignore        # Files to be ignored in version control
+│   ├── README.md         # AWS-specific instructions
+│   └── modules/        
+│       ├── database/
+│       │   ├── database.tf
+│       │   └── db-vars.tf
+│       ├── lb/
+│       │   ├── lb.tf
+│       │   └── lb-vars.tf
+│       ├── instance-template/
+│       │   ├── instance-template.tf
+│       │   ├── it-vars.tf
+│       │   ├── it-output.tf
+│       │   └── scripts/
+│       │       └── startup.sh
+│       ├── microservice-instance/
+│       │   ├── microservices-instance.tf
+│       │   ├── ms-vars.tf
+│       │   └── ms-output.tf  
+│       └── vpc/
+│           ├── vpc.tf
+│           ├── vpc-vars.tf
+│           └── vpc-output.tf
+│
+├── Azure/                # Azure-specific Terraform configurations
+│   ├── main.tf           # Defines GCP infrastructure
+│   ├── variables.tf      # Variables for GCP resources
+│   ├── README.md         # AWS-specific instructions
+│   └── modules/        
+│       ├── database/
+│       │   ├── database.tf
+│       │   └── db-vars.tf
+│       ├── lb/
+│       │   ├── lb.tf
+│       │   └── lb-vars.tf
+│       ├── instance-template/
+│       │   ├── instance-template.tf
+│       │   ├── it-vars.tf
+│       │   ├── it-output.tf
+│       │   └── scripts/
+│       │       └── startup.sh
+│       ├── microservice-instance/
+│       │   ├── microservices-instance.tf
+│       │   ├── ms-vars.tf
+│       │   └── ms-output.tf  
+│       └── vpc/
+│           ├── vpc.tf
+│           ├── vpc-vars.tf
+│           └── vpc-output.tf  
 │
 ├── Multi-Cloud Deployment and Management with Terraform.pdf  # Project documentation
 ├── .gitignore            # Git ignore file
@@ -70,7 +120,7 @@ The AWS setup includes:
 
 ---
 
-### 2. GCP Deployment
+#### 2. GCP Deployment
 The GCP setup includes:
 - **VPC:** Custom network with subnets.
 - **Compute Instances:** Web and backend servers.
@@ -97,10 +147,39 @@ The GCP setup includes:
 
 ---
 
+#### 3. Azure Deployment
+
+The Azure setup includes:
+
+- **Virtual Network (VNet)**: Custom network with subnets.
+- **Virtual Machines (VMs)**: Web and backend servers.
+- **Azure SQL Database**: Managed database service.
+- **Scale Sets**: For automatic scaling.
+- **Network Security Groups (NSG)**: Secure access control.
+
+#### Azure Deployment Steps
+
+1. **Setup Azure CLI**
+```sh
+az login
+az account set --subscription "<YOUR_SUBSCRIPTION_ID>"
+```
+2. **Initialize Terraform**
+   ```bash
+   cd GCP/
+   terraform init
+   ```
+3. **Plan and Apply**
+   ```bash
+   terraform plan
+   terraform apply
+
+---
+
 ## Prerequisites
 Ensure you have:
 - **Terraform** installed (`v1.0+`)
-- **AWS CLI** or **GCP CLI** configured
+- **AWS CLI**, **GCP CLI** and **Azure CLI** configured
 - **Appropriate IAM roles & permissions** for deployment
 - **SSH keys** for EC2/Compute instances
 
