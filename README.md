@@ -1,10 +1,10 @@
 # MultiCloud-Management
 
 ## Overview
-The **MultiCloud-Management** project is designed to deploy and manage infrastructure across multiple cloud platforms, specifically **AWS and GCP**, using **Terraform**. This setup ensures high availability, scalability, and security for business-critical applications.
+The **MultiCloud-Management** project is designed to deploy and manage infrastructure across multiple cloud platforms, specifically **AWS, GCP and Azure**, using **Terraform**. This setup ensures high availability, scalability, and security for business-critical applications.
 
 ## Project Structure
-The repository is structured into separate directories for **AWS** and **GCP**, containing Terraform scripts to provision the required infrastructure.
+The repository is structured into separate directories for **AWS**, **GCP** and **Azure**, containing Terraform scripts to provision the required infrastructure.
 
 ```
 ├── AWS/                        # AWS-specific Terraform configurations
@@ -86,7 +86,7 @@ The repository is structured into separate directories for **AWS** and **GCP**, 
 
 ## Features
 - **Infrastructure as Code (IaC):** Uses Terraform to automate deployment.
-- **MultiCloud Support:** Supports both AWS and GCP.
+- **MultiCloud Support:** Supports both AWS, GCP and Azure.
 - **Scalability & High Availability:** Implements **Auto Scaling Groups**, **Load Balancers**, and **Security Groups**.
 - **Security Best Practices:** Uses **IAM roles, firewall rules, and encryption** for secure access.
 - **Monitoring & Logging:** Integrates **CloudWatch (AWS) / Stackdriver (GCP)** for monitoring.
