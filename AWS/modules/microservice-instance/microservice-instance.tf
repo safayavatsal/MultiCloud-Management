@@ -1,22 +1,19 @@
-resource "random_id" "app_name_suffix" {
-  byte_length = 4
+variable "appserver_count" {
+  type        = number
+  description = "Number of application server instances"
 }
 
-resource "aws_instance" "apps" {
-
-  for_each = toset(var.zones )
-  availability_zone = each.key
-  ami = var.image
-  instance_type = var.instance_type
-  tags = {  
-    Name = "apps-${random_id.app_name_suffix.hex}"
-  }
-
-  # network_interface {
-  #   network_interface_id = var.primary_network_interface-id
-  #   device_index         = 0
-  # }
-  
+variable "instance_type" {
+  type        = string
+  description = "EC2 instance type for the application servers"
 }
 
+variable "image" {
+  type        = string
+  description = "Amazon Machine Image (AMI) ID for the application servers"
+}
 
+variable "zones" {
+  type        = list(string)
+  description = "List of availability zones for deployment"
+}
