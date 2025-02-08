@@ -11,11 +11,20 @@
         │   └── db-vars.tf
         ├── lb/
         │   ├── lb.tf
-        │   └── lb-vars.tf  
+        │   └── lb-vars.tf
+        ├── instance-template/
+        │   ├── instance-template.tf
+        │   ├── it-vars.tf
+        │   ├── it-output.tf
+        │   └── scripts/
+        │       └── startup.sh
         ├── microservice-instance/
         │   ├── microservices-instance.tf
         │   ├── ms-vars.tf
-        │   └── ms-output.tf  
+        │   └── ms-output.tf
+        ├── monitoring/
+        │   ├── monitoring.tf
+        │   └── monitoring-vars.tf 
         └── vpc/
             ├── vpc.tf
             ├── vpc-vars.tf
