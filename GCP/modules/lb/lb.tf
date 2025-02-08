@@ -1,16 +1,15 @@
-
 resource "google_compute_instance_group_manager" "webservers-group-manager" {
-  name               = "${var.name}-instance-group-manager-${count.index}"
+  name               = "${var.name}-instance-group-manager"
   project            = var.project
   base_instance_name = "${var.name}-webserver-instance"
-  count              = var.webserver_count
-  zone               = "${element(var.zones, count.index)}"
+  zone               = var.zones[0]
+  target_size        = var.webserver_count
 
-  version{
-    name = "ws1"
-    # instance_template  = "${module.instance-template.instance-template}"
-    instance_template  = var.ws-instance_template
+  version {
+    name              = "ws1"
+    instance_template = var.ws-instance_template
   }
+
   named_port {
     name = "http"
     port = 80
@@ -18,11 +17,10 @@ resource "google_compute_instance_group_manager" "webservers-group-manager" {
 }
 
 resource "google_compute_autoscaler" "autoscaler" {
-  count   = var.webserver_count
-  name    = "${var.name}-scaler-${count.index}"
+  name    = "${var.name}-scaler"
   project = var.project
-  zone    = "${element(var.zones, count.index)}"
-  target  = "${element(google_compute_instance_group_manager.webservers-group-manager.*.self_link, count.index)}"
+  zone    = var.zones[0]
+  target  = google_compute_instance_group_manager.webservers-group-manager.self_link
 
   autoscaling_policy {
     max_replicas    = 2
@@ -35,49 +33,24 @@ resource "google_compute_autoscaler" "autoscaler" {
   }
 }
 
-
 resource "google_compute_http_health_check" "healthcheck" {
-  name         = "${var.name}-healthcheck"
-  project      = var.project
-  port         = 80
+  name        = "${var.name}-healthcheck"
+  project     = var.project
+  port        = 80
   request_path = "/"
 }
 
-
 resource "google_compute_backend_service" "backend_service" {
-  name                  = "${var.name}-backend-service"
-  project               = var.project
-  port_name             = "http"
-  protocol              = "HTTP"
-  backend {
-    group                 = "${element(google_compute_instance_group_manager.webservers-group-manager.*.instance_group, 0)}"
-    balancing_mode        = "RATE"
-    max_rate_per_instance = 100
-  }
-
-  backend {
-    group                 = "${element(google_compute_instance_group_manager.webservers-group-manager.*.instance_group, 1)}"
-    balancing_mode        = "RATE"
-    max_rate_per_instance = 100
-  }
-
-  health_checks = ["${google_compute_http_health_check.healthcheck.self_link}"]
+  name          = "${var.name}-backend-service"
+  project       = var.project
+  port_name     = "http"
+  protocol      = "HTTP"
+  health_checks = [google_compute_http_health_check.healthcheck.self_link]
 }
 
-
-resource "google_compute_url_map" "url_map" {
-  name            = "${var.name}-url-map"
-  project         = var.project
-  default_service = "${google_compute_backend_service.backend_service.self_link}"
-}
-resource "google_compute_target_http_proxy" "target_http_proxy" {
-  name        = "${var.name}-proxy"
-  project     = var.project
-  url_map     = "${google_compute_url_map.url_map.self_link}"
-}
 resource "google_compute_global_forwarding_rule" "global_forwarding_rule" {
   name       = "${var.name}-global-forwarding-rule"
   project    = var.project
-  target     = "${google_compute_target_http_proxy.target_http_proxy.self_link}"
+  target     = google_compute_backend_service.backend_service.self_link
   port_range = "80"
 }
