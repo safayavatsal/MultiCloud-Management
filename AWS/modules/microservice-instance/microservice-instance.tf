@@ -1,19 +1,17 @@
-variable "appserver_count" {
-  type        = number
-  description = "Number of application server instances"
+resource "random_id" "app_name_suffix" {
+  byte_length = 4
 }
 
-variable "instance_type" {
-  type        = string
-  description = "EC2 instance type for the application servers"
-}
+resource "aws_instance" "apps" {
+  for_each          = toset(var.zones)
+  availability_zone = each.key
+  ami              = var.image
+  instance_type    = var.instance_type
 
-variable "image" {
-  type        = string
-  description = "Amazon Machine Image (AMI) ID for the application servers"
-}
+  vpc_security_group_ids = [var.security_group_id] # Ensure the instance is attached to a security group
+  subnet_id             = var.subnet_id           # Attach to the correct subnet
 
-variable "zones" {
-  type        = list(string)
-  description = "List of availability zones for deployment"
+  tags = {
+    Name = "apps-${random_id.app_name_suffix.hex}-${each.key}"
+  }
 }
