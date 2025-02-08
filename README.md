@@ -190,11 +190,16 @@ az account set --subscription "<YOUR_SUBSCRIPTION_ID>"
    terraform apply
 
 ---
+## Monitoring
+
 | **Cloud Provider** | **Monitoring Tool**  | **Alerting Mechanism**      |
 |-------------------|-------------------|---------------------------|
 | AWS              | CloudWatch        | SNS (Email)               |
 | Azure            | Azure Monitor     | Action Groups (Email)     |
 | GCP             | Cloud Monitoring  | Alerting Policy (Email)   |
+
+🔹 **Next Steps**: Replace var.instance_id, var.vm_id, and var.alert_email with real values when applying Terraform.
+🔹 **Fully Automated**: These Terraform files ensure cross-cloud monitoring and alerting in AWS, Azure, and GCP. 🚀
 
 ---
 
