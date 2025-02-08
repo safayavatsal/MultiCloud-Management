@@ -1,34 +1,30 @@
-resource "aws_launch_configuration" "webserver-lc" {
-  name_prefix = "webserver-"
-
-  image_id = var.image
+resource "aws_launch_template" "webserver-lt" {
+  name_prefix   = "webserver-"
+  image_id      = var.image
   instance_type = var.instance_type
 
-  # security_groups = [aws_security_group.allow_http.name]
-
-  associate_public_ip_address = true
-
-  user_data = <<USER_DATA
-                    #! /bin/bash
-                    apt update
-                    apt -y install apache2
-                    cat <<EOF > /var/www/html/index.html
-                    <html><body><h1>Hello World</h1>
-                    <p>This page was created from a startup script.</p>
-                    </body></html>
-                    EOF
-                USER_DATA
-  lifecycle {
-    create_before_destroy = true
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups = [aws_security_group.allow_http.id]
   }
+
+  user_data = base64encode(<<USER_DATA
+#!/bin/bash
+apt update
+apt -y install apache2
+cat <<EOF > /var/www/html/index.html
+<html><body><h1>Hello World</h1>
+<p>This page was created from a startup script.</p>
+</body></html>
+EOF
+USER_DATA
+  )
 }
 
-
-resource "aws_security_group" "elb-sg" {
-  name        = "elb-sg"
-  description = "Allow HTTP traffic through Elastic Load Balancer"
-  # vpc_id = aws_vpc.xcloud-vpc.id
-  vpc_id = var.vpc-id
+resource "aws_security_group" "allow_http" {
+  name        = "allow_http"
+  description = "Allow HTTP traffic"
+  vpc_id      = var.vpc-id
 
   ingress {
     from_port   = 80
@@ -38,69 +34,63 @@ resource "aws_security_group" "elb-sg" {
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "Allow HTTP through ELB Security Group"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
-resource "aws_elb" "webserver_elb" {
-  name = "webserver-elb"
-  # count = "${length(var.zones)}"
-  availability_zones = toset(var.zones)
+resource "aws_lb" "webserver_lb" {
+  name               = "webserver-lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.allow_http.id]
+  subnets           = var.subnet_ids
+}
 
-  cross_zone_load_balancing   = true
+resource "aws_lb_target_group" "webserver_tg" {
+  name     = "webserver-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = var.vpc-id
+
   health_check {
-    healthy_threshold = 2
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
     unhealthy_threshold = 2
-    timeout = 3
-    interval = 30
-    target = "HTTP:80/"
   }
-
-  listener {
-    lb_port = 80
-    lb_protocol = "http"
-    instance_port = "80"
-    instance_protocol = "http"
-  }
-
 }
 
+resource "aws_lb_listener" "http_listener" {
+  load_balancer_arn = aws_lb.webserver_lb.arn
+  port              = 80
+  protocol          = "HTTP"
 
-resource "aws_autoscaling_group" "webserver-asg" {
-  name = "${aws_launch_configuration.webserver-lc.name}-asg"
-
-  min_size             = 1
-  desired_capacity     = 2
-  max_size             = 3
-  
-  health_check_type    = "ELB"
-
-  availability_zones = toset(var.zones)
-
-  # for_each = aws_elb.webserver_elb
-  load_balancers = [aws_elb.webserver_elb.id]
-
-  launch_configuration = aws_launch_configuration.webserver-lc.name
-
-  # Required to redeploy without an outage.
-  lifecycle {
-    create_before_destroy = true
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.webserver_tg.arn
   }
+}
+
+resource "aws_autoscaling_group" "webserver_asg" {
+  name                = "webserver-asg"
+  min_size            = 1
+  desired_capacity    = 2
+  max_size            = 3
+  vpc_zone_identifier = var.subnet_ids
+  target_group_arns   = [aws_lb_target_group.webserver_tg.arn]
+
+  launch_template {
+    id      = aws_launch_template.webserver-lt.id
+    version = "$Latest"
+  }
+
   tag {
     key                 = "Name"
     value               = "webserver-asg"
     propagate_at_launch = true
   }
-
 }
-
-
-
-
