@@ -2,8 +2,21 @@ resource "random_id" "app_name_suffix" {
   byte_length = 4
 }
 
+resource "azurerm_network_interface" "app_nic" {
+  for_each            = toset(var.zones)
+  name                = "app-nic-${each.key}"
+  location            = var.region
+  resource_group_name = var.resource_group
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = var.subnet_id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
 resource "azurerm_linux_virtual_machine" "apps" {
-  for_each            = toset(var.zones) 
+  for_each            = toset(var.zones)
   name                = "apps-${random_id.app_name_suffix.hex}-${each.key}"
   resource_group_name = var.resource_group
   location            = var.region
@@ -24,17 +37,3 @@ resource "azurerm_linux_virtual_machine" "apps" {
     version   = "latest"
   }
 }
-
-resource "azurerm_network_interface" "app_nic" {
-  for_each            = toset(var.zones) 
-  name                = "app-nic-${each.key}"
-  location            = var.region
-  resource_group_name = var.resource_group
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = var.subnet_id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
