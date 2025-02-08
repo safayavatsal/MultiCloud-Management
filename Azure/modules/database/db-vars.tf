@@ -20,3 +20,21 @@ variable "db_password" {
   sensitive   = true
 }
 
+# Disaster Recovery & Replication
+variable "aws_replica_enabled" {
+  description = "Enable AWS read replica for cross-cloud disaster recovery"
+  type        = bool
+  default     = false
+}
+
+variable "gcp_replica_enabled" {
+  description = "Enable GCP read replica for cross-cloud disaster recovery"
+  type        = bool
+  default     = false
+}
+
+variable "backup_retention_period" {
+  description = "Number of days to retain backups"
+  type        = number
+  default     = 7
+}
