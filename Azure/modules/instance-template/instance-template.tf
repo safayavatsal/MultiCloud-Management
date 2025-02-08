@@ -1,6 +1,5 @@
 resource "azurerm_linux_virtual_machine_scale_set" "ws_instance_template" {
-  count = var.enable_autoscaling ? 1 : 0
-
+  count               = var.enable_autoscaling ? 1 : 0
   name                = "${var.name}-vmss"
   resource_group_name = var.resource_group
   location            = var.region
@@ -10,7 +9,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "ws_instance_template" {
 
   admin_ssh_key {
     username   = "adminuser"
-    public_key = file("${var.ssh_key}")
+    public_key = file(var.ssh_key)
   }
 
   network_interface {
@@ -22,7 +21,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "ws_instance_template" {
       subnet_id = var.subnet_id
 
       public_ip_address {
-        allocation = "Dynamic"
+        allocation_method = "Dynamic"
       }
     }
   }
@@ -39,10 +38,9 @@ resource "azurerm_linux_virtual_machine_scale_set" "ws_instance_template" {
     caching             = "ReadWrite"
   }
 
-  custom_data = base64encode(file("${path.module}/scripts/startup.sh"))
+  custom_data = filebase64("${path.module}/scripts/startup.sh")
 
   tags = {
     environment = var.env
   }
 }
-
