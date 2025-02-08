@@ -17,11 +17,20 @@ The repository is structured into separate directories for **AWS**, **GCP** and 
 │       │   └── db-vars.tf
 │       ├── lb/
 │       │   ├── lb.tf
-│       │   └── lb-vars.tf  
+│       │   └── lb-vars.tf
+│       ├── instance-template/
+│       │   ├── instance-template.tf
+│       │   ├── it-vars.tf
+│       │   ├── it-output.tf
+│       │   └── scripts/
+│       │       └── startup.sh
 │       ├── microservice-instance/
 │       │   ├── microservices-instance.tf
 │       │   ├── ms-vars.tf
-│       │   └── ms-output.tf  
+│       │   └── ms-output.tf
+│       ├── monitoring/
+│       │   ├── monitoring.tf
+│       │   └── monitoring-vars.tf   
 │       └── vpc/
 │           ├── vpc.tf
 │           ├── vpc-vars.tf
@@ -47,7 +56,10 @@ The repository is structured into separate directories for **AWS**, **GCP** and 
 │       ├── microservice-instance/
 │       │   ├── microservices-instance.tf
 │       │   ├── ms-vars.tf
-│       │   └── ms-output.tf  
+│       │   └── ms-output.tf
+│       ├── monitoring/
+│       │   ├── monitoring.tf
+│       │   └── monitoring-vars.tf 
 │       └── vpc/
 │           ├── vpc.tf
 │           ├── vpc-vars.tf
@@ -73,7 +85,10 @@ The repository is structured into separate directories for **AWS**, **GCP** and 
 │       ├── microservice-instance/
 │       │   ├── microservices-instance.tf
 │       │   ├── ms-vars.tf
-│       │   └── ms-output.tf  
+│       │   └── ms-output.tf
+│       ├── monitoring/
+│       │   ├── monitoring.tf
+│       │   └── monitoring-vars.tf 
 │       └── vpc/
 │           ├── vpc.tf
 │           ├── vpc-vars.tf
@@ -174,6 +189,16 @@ az account set --subscription "<YOUR_SUBSCRIPTION_ID>"
    terraform plan
    terraform apply
 
+---
+---------------------------------------------------------
+│ Cloud Provider │ Monitoring Tool │ Alerting Mechanism │
+---------------------------------------------------------
+│ AWS │ CloudWatch │ SNS (Email) │
+----------------------------------
+│ Azure │ Azure Monitor │ Action Groups (Email) │
+-------------------------------------------------
+│ GCP │ Cloud Monitoring │ Alerting Policy (Email) │
+----------------------------------------------------
 ---
 
 ## Prerequisites
