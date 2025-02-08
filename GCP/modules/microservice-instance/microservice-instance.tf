@@ -3,10 +3,10 @@ resource "random_id" "app_name_suffix" {
 }
 
 resource "google_compute_instance" "apps" {
-  name         = "apps-${random_id.app_name_suffix.hex}"
+  for_each     = toset(var.zones)
+  name         = "apps-${random_id.app_name_suffix.hex}-${each.key}"
   machine_type = var.instance_type
-  for_each = toset(var.zones )
-  zone = each.key
+  zone         = each.key
 
   boot_disk {
     initialize_params {
@@ -15,13 +15,11 @@ resource "google_compute_instance" "apps" {
   }
 
   network_interface {
-    # network = "default"
-    # network = "google_compute_network.xcloud-vpc.self_link" 
-    network = var.vpc-name
-    subnetwork = var.subnet-self_link
+    network    = var.vpc_name
+    subnetwork = var.subnet_self_link
 
     access_config {
-      // Ephemeral IP
+      // Assigns an ephemeral external IP
     }
   }
 }
