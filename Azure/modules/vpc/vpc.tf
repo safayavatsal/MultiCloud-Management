@@ -12,40 +12,26 @@ resource "azurerm_subnet" "xcloud_subnet" {
   address_prefixes     = ["10.0.0.0/24"]
 }
 
-resource "azurerm_network_security_group" "xcloud_nsg" {
-  name                = "xcloud-nsg"
+# Azure VPN Gateway
+resource "azurerm_virtual_network_gateway" "xcloud_vpn" {
+  name                = "xcloud-vpn"
   location            = var.region
   resource_group_name = var.resource_group_name
+  type                = "Vpn"
+  vpn_type            = "RouteBased"
+  sku                 = "VpnGw1"
+
+  ip_configuration {
+    name                          = "xcloud-vpn-config"
+    public_ip_address_id          = azurerm_public_ip.xcloud_vpn.id
+    private_ip_address_allocation = "Dynamic"
+    subnet_id                     = azurerm_subnet.xcloud_subnet.id
+  }
 }
 
-resource "azurerm_network_security_rule" "allow_icmp" {
-  name                        = "allow-icmp"
-  priority                    = 100
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Icmp"
-  source_port_range           = "*"
-  destination_port_range      = "*"
-  source_address_prefix       = "*"
-  destination_address_prefix  = "*"
-  network_security_group_name = azurerm_network_security_group.xcloud_nsg.name
+resource "azurerm_public_ip" "xcloud_vpn" {
+  name                = "xcloud-vpn-ip"
+  location            = var.region
+  resource_group_name = var.resource_group_name
+  allocation_method   = "Static"
 }
-
-resource "azurerm_network_security_rule" "allow_http_ports" {
-  name                        = "allow-http"
-  priority                    = 110
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_ranges     = ["80", "8080", "1000-2000"]
-  source_address_prefix       = "*"
-  destination_address_prefix  = "*"
-  network_security_group_name = azurerm_network_security_group.xcloud_nsg.name
-}
-
-resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
-  subnet_id                 = azurerm_subnet.xcloud_subnet.id
-  network_security_group_id = azurerm_network_security_group.xcloud_nsg.id
-}
-
