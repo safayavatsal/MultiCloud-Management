@@ -37,4 +37,3 @@ variable "instance_type" {
   type        = string
   description = "VM size/type for the application servers"
 }
-
