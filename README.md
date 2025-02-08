@@ -190,15 +190,12 @@ az account set --subscription "<YOUR_SUBSCRIPTION_ID>"
    terraform apply
 
 ---
----------------------------------------------------------
-│ Cloud Provider │ Monitoring Tool │ Alerting Mechanism │
----------------------------------------------------------
-│ AWS │ CloudWatch │ SNS (Email) │
-----------------------------------
-│ Azure │ Azure Monitor │ Action Groups (Email) │
--------------------------------------------------
-│ GCP │ Cloud Monitoring │ Alerting Policy (Email) │
-----------------------------------------------------
+| **Cloud Provider** | **Monitoring Tool**  | **Alerting Mechanism**      |
+|-------------------|-------------------|---------------------------|
+| AWS              | CloudWatch        | SNS (Email)               |
+| Azure            | Azure Monitor     | Action Groups (Email)     |
+| GCP             | Cloud Monitoring  | Alerting Policy (Email)   |
+
 ---
 
 ## Prerequisites
