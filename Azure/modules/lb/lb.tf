@@ -1,3 +1,11 @@
+resource "azurerm_public_ip" "lb_public_ip" {
+  name                = "${var.name}-lb-ip"
+  location            = var.region
+  resource_group_name = var.resource_group
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
 resource "azurerm_lb" "load_balancer" {
   name                = "${var.name}-lb"
   location            = var.region
@@ -10,25 +18,16 @@ resource "azurerm_lb" "load_balancer" {
   }
 }
 
-resource "azurerm_public_ip" "lb_public_ip" {
-  name                = "${var.name}-lb-ip"
-  location            = var.region
-  resource_group_name = var.resource_group
-  allocation_method   = "Static"
-  sku                 = "Standard"
-}
-
 resource "azurerm_lb_backend_address_pool" "backend_pool" {
-  name                = "BackendPool"
-  loadbalancer_id     = azurerm_lb.load_balancer.id
+  name            = "BackendPool"
+  loadbalancer_id = azurerm_lb.load_balancer.id
 }
 
 resource "azurerm_lb_probe" "health_probe" {
-  name                = "${var.name}-health-probe"
-  loadbalancer_id     = azurerm_lb.load_balancer.id
-  protocol            = "Http"
-  port               = 80
-  request_path        = "/"
+  name            = "${var.name}-health-probe"
+  loadbalancer_id = azurerm_lb.load_balancer.id
+  protocol        = "Tcp"
+  port           = 80
 }
 
 resource "azurerm_lb_rule" "http_rule" {
@@ -44,18 +43,19 @@ resource "azurerm_lb_rule" "http_rule" {
 
 resource "azurerm_linux_virtual_machine_scale_set" "webserver_vmss" {
   name                = "${var.name}-vmss"
-  resource_group_name = var.resource_group
   location            = var.region
+  resource_group_name = var.resource_group
   sku                 = "Standard_B1ms"
   instances           = var.webserver_count
   admin_username      = "adminuser"
 
   network_interface {
-    name                      = "vmss-nic"
-    primary                   = true
+    name    = "vmss-nic"
+    primary = true
+
     ip_configuration {
-      name                          = "internal"
-      subnet_id                     = azurerm_subnet.main.id
+      name                                   = "internal"
+      subnet_id                              = azurerm_subnet.main.id
       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.backend_pool.id]
     }
   }
@@ -72,4 +72,3 @@ resource "azurerm_linux_virtual_machine_scale_set" "webserver_vmss" {
     version   = "latest"
   }
 }
-
